@@ -45,4 +45,29 @@ class NeuralNet(torch.nn.Module):
 
 model = NeuralNet()
 
-model(torch.tensor(X_train[0:10].reshape((-1, 28 * 28))).float())
+# number of input images per batch
+batch_size = 32
+# loss function to measure the error between predicted and true labels
+loss_function = nn.CrossEntropyLoss()
+# optimizer used to update the weights based on the computed gradients
+optimizer = torch.optim.Adam(model.parameters())
+
+# train the model for 100 epochs
+for i in (t := trange(100)):
+    # sample a random batch from the training set
+    sample = np.random.randint(0, X_train.shape[0], size=batch_size)
+    # create input and output tensors
+    X = torch.tensor(X_train[sample].reshape((-1, 28 * 28))).float()
+    Y = torch.tensor(Y_train[sample]).long()
+    # clear gradients from previous iteration
+    optimizer.zero_grad()
+    # compute the prediction for this batch by calling on model
+    out = model(X)
+    # compute loss for this batch
+    loss = loss_function(out, Y)
+    # compute gradients based on loss
+    loss.backward()
+    # update weights
+    optimizer.step()
+
+    t.set_description("Loss: %.2f" % loss.item())

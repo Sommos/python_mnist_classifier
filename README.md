@@ -1,6 +1,12 @@
 # Python MNIST classifier
 
-This program allows a user to build a classifier based on an MNIST dataset
+<p align="center">
+    <img src="image_0.png" width="800" />
+</p>
+
+This program allows a user to build a classifier based on an MNIST dataset.
+
+92% accuracy is achieved with the current neural network.
 
 # Dataset
 
