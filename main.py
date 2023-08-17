@@ -3,6 +3,9 @@ import torch.nn.functional as F
 import torch.nn as nn
 import numpy as np
 from tqdm import trange
+import matplotlib.pyplot as plt
+
+torch.set_printoptions(sci_mode=False)
 
 # function to fetch data from the internet
 # returns numpy arrays
@@ -46,14 +49,16 @@ class NeuralNet(torch.nn.Module):
 
 model = NeuralNet()
 # number of input images per batch
-batch_size = 4096
+batch_size = 128
 # loss function to measure the error between predicted and true labels
 loss_function = nn.CrossEntropyLoss()
 # optimizer used to update the weights based on the computed gradients
 optimizer = torch.optim.Adam(model.parameters())
+# lists to store the loss and accuracy for each iteration
+losses, accuracies = [], []
 
-# train the model for 100 epochs
-for i in (t := trange(100)):
+# train the model for 10 epochs
+for i in (t := trange(10)):
     # sample a random batch from the training set
     sample = np.random.randint(0, X_train.shape[0], size=batch_size)
     # create input and output tensors
@@ -63,11 +68,23 @@ for i in (t := trange(100)):
     optimizer.zero_grad()
     # compute the prediction for this batch by calling on model
     out = model(X)
+    cat = torch.argmax(out, dim=1)
+    accuracy = (cat == Y).float().mean()
     # compute loss for this batch
     loss = loss_function(out, Y)
     # compute gradients based on loss
     loss.backward()
     # update weights
     optimizer.step()
+    # store current loss and accuracy
+    loss, accuracy = loss.item(), accuracy.item()
+    # append current loss and accuracy iteration to loss and accuracy lists
+    losses.append(loss)
+    accuracies.append(accuracy)
 
-    t.set_description("Loss: %.2f" % loss.item())
+    t.set_description("Loss: %.2f | Accuracy: %.2f " % (loss, accuracy))
+
+# plot loss and accuracy
+plt.plot(losses)
+plt.plot(accuracies)
+plt.show()
