@@ -41,12 +41,12 @@ class NeuralNet(torch.nn.Module):
         x = self.l1(x)
         x = self.act(x)
         x = self.l2(x)
+
         return x
 
 model = NeuralNet()
-
 # number of input images per batch
-batch_size = 32
+batch_size = 4096
 # loss function to measure the error between predicted and true labels
 loss_function = nn.CrossEntropyLoss()
 # optimizer used to update the weights based on the computed gradients
