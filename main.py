@@ -1,9 +1,8 @@
 import requests, gzip, os, hashlib, torch
-import torch.nn.functional as F
+import matplotlib.pyplot as plt
 import torch.nn as nn
 import numpy as np
 from tqdm import trange
-import matplotlib.pyplot as plt
 
 # set default tensor type to disable scientific notation
 torch.set_printoptions(sci_mode=False)
@@ -12,7 +11,7 @@ torch.set_printoptions(sci_mode=False)
 # returns numpy arrays
 def fetch(url):
     # compute file path based on url
-    fp = os.path.join("test", hashlib.md5(url.encode('utf-8')).hexdigest())
+    fp = os.path.join("mnist_data", hashlib.md5(url.encode('utf-8')).hexdigest())
     # if file exists, read it from disk
     if os.path.isfile(fp):
         with open(fp, "rb") as f:
@@ -56,7 +55,10 @@ batch_size = 128
 # loss function to measure the error between predicted and true labels
 loss_function = nn.CrossEntropyLoss()
 # optimizer used to update the weights based on the computed gradients
-optimizer = torch.optim.Adam(model.parameters())
+optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.0)
+# old optimizer using adam instead of sgd
+# optimizer = torch.optim.Adam(model.parameters())
+
 # lists to store the loss and accuracy for each iteration
 losses, accuracies = [], []
 
@@ -90,8 +92,9 @@ for i in (t := trange(1000)):
 # clip the graph to reasonable values for better visualization
 plt.ylim(-0.1, 1.1)
 # plot loss and accuracy
-plt.plot(losses)
-plt.plot(accuracies)
+plt.plot(losses, label="Loss")
+plt.plot(accuracies, label="Accuracy")
+plt.legend()
 plt.show()
 
 # EVALUATION
