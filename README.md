@@ -1,17 +1,17 @@
 # Python MNIST classifier
 
 <p align="center">
-    <img src="image_0.png" width="400" />
-    <img src="image_1.png" width="400" />
+    <img src="image_1.png" width="800" />
+    <img src="image_0.png" width="800" />
 </p>
 
-This program allows a user to build a classifier based on an MNIST dataset.
+This program allows a user to build a classifier to recognise numbers in images, based on an MNIST dataset.
 
-92% accuracy is achieved with the current neural network.
+95.1% accuracy is achieved with the current neural network after training the classifier.
 
 # Dataset
 
-The dataset used in this program can be found at:
+The MNIST dataset used in this program can be found at:
 
 http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz
 

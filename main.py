@@ -5,6 +5,7 @@ import numpy as np
 from tqdm import trange
 import matplotlib.pyplot as plt
 
+# set default tensor type to disable scientific notation
 torch.set_printoptions(sci_mode=False)
 
 # function to fetch data from the internet
@@ -31,6 +32,7 @@ Y_train = fetch("http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz")[8
 X_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28, 28))
 Y_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz")[8:]
 
+# MODEL
 class NeuralNet(torch.nn.Module):
     def __init__(self):
         super(NeuralNet, self).__init__()
@@ -47,6 +49,7 @@ class NeuralNet(torch.nn.Module):
 
         return x
 
+# TRAINING
 model = NeuralNet()
 # number of input images per batch
 batch_size = 128
@@ -84,8 +87,14 @@ for i in (t := trange(1000)):
 
     t.set_description("Loss: %.2f | Accuracy: %.2f " % (loss, accuracy))
 
+# clip the graph to reasonable values for better visualization
 plt.ylim(-0.1, 1.1)
 # plot loss and accuracy
 plt.plot(losses)
 plt.plot(accuracies)
 plt.show()
+
+# EVALUATION
+# compute the model accuracy on the test set
+Y_test_predictions = torch.argmax(model(torch.tensor(X_test.reshape((-1, 28 * 28))).float()), dim=1).numpy()
+print((Y_test == Y_test_predictions).mean())
