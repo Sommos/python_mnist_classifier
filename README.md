@@ -1,7 +1,8 @@
 # Python MNIST classifier
 
 <p align="center">
-    <img src="image_0.png" width="800" />
+    <img src="image_0.png" width="400" />
+    <img src="image_1.png" width="400" />
 </p>
 
 This program allows a user to build a classifier based on an MNIST dataset.

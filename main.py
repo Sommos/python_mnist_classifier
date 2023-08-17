@@ -57,8 +57,8 @@ optimizer = torch.optim.Adam(model.parameters())
 # lists to store the loss and accuracy for each iteration
 losses, accuracies = [], []
 
-# train the model for 10 epochs
-for i in (t := trange(10)):
+# train the model for 1000 epochs
+for i in (t := trange(1000)):
     # sample a random batch from the training set
     sample = np.random.randint(0, X_train.shape[0], size=batch_size)
     # create input and output tensors
@@ -84,6 +84,7 @@ for i in (t := trange(10)):
 
     t.set_description("Loss: %.2f | Accuracy: %.2f " % (loss, accuracy))
 
+plt.ylim(-0.1, 1.1)
 # plot loss and accuracy
 plt.plot(losses)
 plt.plot(accuracies)
