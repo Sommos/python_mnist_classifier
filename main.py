@@ -26,9 +26,13 @@ def fetch(url):
     return np.frombuffer(gzip.decompress(dat), dtype=np.uint8).copy()
 
 # fetch MNIST data
+# X_train: 60000x28x28 array of pixel data for training images
 X_train = fetch("http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28, 28))
+# Y_train: 60000 array of labels for training images
 Y_train = fetch("http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz")[8:]
+# X_test: 10000x28x28 array of pixel data for testing images
 X_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28, 28))
+# Y_test: 10000 array of labels for testing images
 Y_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz")[8:]
 
 # MODEL
@@ -49,7 +53,14 @@ class NeuralNet(torch.nn.Module):
         return x
 
 # TRAINING
-model = NeuralNet()
+# check if GPU is available
+if torch.cuda.is_available():
+    device = 'cuda'
+else:
+    device = 'cpu'
+
+model = NeuralNet().to(device)
+
 # number of input images per batch
 batch_size = 128
 # loss function to measure the error between predicted and true labels
@@ -67,8 +78,8 @@ for i in (t := trange(1000)):
     # sample a random batch from the training set
     sample = np.random.randint(0, X_train.shape[0], size=batch_size)
     # create input and output tensors
-    X = torch.tensor(X_train[sample].reshape((-1, 28 * 28))).float()
-    Y = torch.tensor(Y_train[sample]).long()
+    X = torch.tensor(X_train[sample].reshape((-1, 28 * 28))).float().to(device)
+    Y = torch.tensor(Y_train[sample]).long().to(device)
     # clear gradients from previous iteration
     optimizer.zero_grad()
     # compute the prediction for this batch by calling on model
@@ -99,5 +110,5 @@ plt.show()
 
 # EVALUATION
 # compute the model accuracy on the test set
-Y_test_predictions = torch.argmax(model(torch.tensor(X_test.reshape((-1, 28 * 28))).float()), dim=1).numpy()
+Y_test_predictions = torch.argmax(model(torch.tensor(X_test.reshape((-1, 28 * 28))).float().to(device)), dim=1).cpu().numpy()
 print((Y_test == Y_test_predictions).mean())
