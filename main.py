@@ -39,16 +39,26 @@ Y_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz")[8:]
 class NeuralNet(torch.nn.Module):
     def __init__(self):
         super(NeuralNet, self).__init__()
-        # first linear layer with 784 input neurons, 128 output neurons and no bias
-        self.l1 = nn.Linear(784, 128, bias=False)
-        self.act = nn.ReLU()
-        # second linear layer with 128 input neurons, 10 output neurons and no bias
-        self.l2 = nn.Linear(128, 10, bias=False)
+        # first linear layer with 784 input neurons, 256 output neurons and no bias
+        self.l1 = nn.Linear(784, 256, bias=False)
+        self.act1 = nn.ReLU()
+        # second linear layer with 256 input neurons, 128 output neurons and no bias
+        self.l2 = nn.Linear(256, 128, bias=False)
+        self.act2 = nn.ReLU()
+        # third linear layer with 128 input neurons, 64 output neurons and no bias
+        self.l3 = nn.Linear(128, 64, bias=False)
+        self.act3 = nn.ReLU()
+        # forth linear layer with 64 input neurons, 10 output neurons and no bias
+        self.l4 = nn.Linear(64, 10, bias=False)
     # method for forward pass of input tensor 'x' through the network
     def forward(self, x):
         x = self.l1(x)
-        x = self.act(x)
+        x = self.act1(x)
         x = self.l2(x)
+        x = self.act2(x)
+        x = self.l3(x)
+        x = self.act3(x)
+        x = self.l4(x)
 
         return x
 
@@ -72,6 +82,11 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.0)
 
 # lists to store the loss and accuracy for each iteration
 losses, accuracies = [], []
+
+# variables for early stopping
+best_val_loss = float('inf')
+epochs_since_best_val_loss = 0
+patience = 10
 
 # train the model for 1000 epochs
 for i in (t := trange(1000)):
@@ -99,6 +114,25 @@ for i in (t := trange(1000)):
     accuracies.append(accuracy)
 
     t.set_description("Loss: %.2f | Accuracy: %.2f " % (loss, accuracy))
+
+    # evaluate the model on the validation set every 10 epochs
+    if i % 10 == 0:
+        # compute the validation loss
+        X_val = torch.tensor(X_test.reshape((-1, 28 * 28))).float().to(device)
+        Y_val = torch.tensor(Y_test).long().to(device)
+        val_out = model(X_val)
+        val_loss = loss_function(val_out, Y_val).item()
+
+        # check if the validation loss is better than the best validation loss seen so far
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            epochs_since_best_val_loss = 0
+        else:
+            epochs_since_best_val_loss += 1
+
+        # stop training if patience epochs have passed since best validation loss
+        if epochs_since_best_val_loss >= patience:
+            break
 
 # clip the graph to reasonable values for better visualization
 plt.ylim(-0.1, 1.1)
